@@ -1,0 +1,83 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Specialite {
+  GENERALISTE
+  CARDIOLOGUE
+  DENTISTE
+  PEDIATRE
+  DERMATOLOGUE
+}
+
+enum StatutRendezVous {
+  PLANIFIE
+  ANNULE
+  TERMINE
+  ABSENT
+}
+
+model Medecin {
+  id          String          @id @default(cuid())
+  prenom      String          @db.VarChar(100)
+  nom         String          @db.VarChar(100)
+  specialite  Specialite
+  telephone   String          @db.VarChar(20)
+  email       String          @unique @db.VarChar(150)
+  actif       Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  rendezVous  RendezVous[]
+  @@index([nom, prenom])
+  @@map("medecins")
+}
+
+model Patient {
+  id            String       @id @default(cuid())
+  prenom        String       @db.VarChar(100)
+  nom           String       @db.VarChar(100)
+  dateNaissance DateTime     @map("date_naissance")
+  telephone     String       @db.VarChar(20)
+  adresse       String       @db.VarChar(255)
+  actif         Boolean      @default(true) 
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  rendezVous    RendezVous[]
+  @@index([nom, prenom])
+  @@map("patients")
+}
+
+model RendezVous {
+  id          String             @id @default(cuid())
+  dateHeure   DateTime           @map("date_heure")
+  statut      StatutRendezVous   @default(PLANIFIE)
+  medecinId   String             @map("medecin_id")
+  patientId   String             @map("patient_id")
+  medecin     Medecin  @relation(fields: [medecinId], references: [id], onDelete: Restrict)
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  ordonnance  Ordonnance?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([medecinId, dateHeure])
+  @@index([patientId, dateHeure])
+  @@map("rendez_vous")
+}
+
+model Ordonnance {
+  id            String       @id @default(cuid())
+  dateCreation  DateTime     @default(now()) @map("date_creation")
+  description   String       @db.Text
+  rendezVousId  String       @unique @map("rendez_vous_id")
+  rendezVous    RendezVous   @relation(fields: [rendezVousId], references: [id], onDelete: Restrict)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  @@map("ordonnances")
+}
