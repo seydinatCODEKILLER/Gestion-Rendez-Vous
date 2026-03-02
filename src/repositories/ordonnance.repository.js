@@ -1,12 +1,12 @@
-const prisma = require("../config/prisma");
+import prisma from "../config/prisma.js";
 
-async function create(data) {
-  return prisma.ordonnance.create({
-    data
-  });
+// Crée une ordonnance
+export async function create(data) {
+  return prisma.ordonnance.create({ data });
 }
 
-async function findById(id) {
+// Cherche une ordonnance par ID
+export async function findById(id) {
   return prisma.ordonnance.findUnique({
     where: { id },
     include: {
@@ -20,29 +20,24 @@ async function findById(id) {
   });
 }
 
-async function findByRendezVousId(rendezVousId) {
+// Cherche une ordonnance par rendez-vous (pour éviter doublon)
+export async function findByRendezVousId(rendezVousId) {
   return prisma.ordonnance.findUnique({
     where: { rendezVousId }
   });
 }
 
-async function update(id, data) {
+// Met à jour une ordonnance
+export async function update(id, data) {
   return prisma.ordonnance.update({
     where: { id },
     data
   });
 }
 
-async function remove(id) {
+// Supprime une ordonnance
+export async function remove(id) {
   return prisma.ordonnance.delete({
     where: { id }
   });
 }
-
-module.exports = {
-  create,
-  findById,
-  findByRendezVousId,
-  update,
-  remove
-};
