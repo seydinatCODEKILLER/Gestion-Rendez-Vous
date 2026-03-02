@@ -4,6 +4,8 @@ import swaggerSpec from './config/swagger.js';
 import errorHandler from './middlewares/error-handler.middleware.js';
 import notFound from './middlewares/not-found.middleware.js';
 import ordonnanceRoutes from './routes/ordonnance.routes.js';
+import  patientRoutes from './routes/patient.routes.js';
+import rvRoutes from './routes/rv.routes.js';
 
 
 
@@ -17,6 +19,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 console.log("🟢 Routeur ordonnances chargé");
 app.use("/ordonnances", ordonnanceRoutes);
 
+app.use('/api/rendezvous', rvRoutes);
+app.use('/api/patients', patientRoutes);
 
 //health check
 app.get('/health', (req, res) => {
