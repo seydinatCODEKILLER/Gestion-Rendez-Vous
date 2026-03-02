@@ -1,48 +1,30 @@
-const prisma = require("../config/prisma");
+import { createBaseRepository } from './base.repository.js';
+import prisma from '../config/prisma.js';
 
-async function create(data) {
-  return prisma.ordonnance.create({
-    data
-  });
-}
+const baseRepo = createBaseRepository('ordonnance', {
+  rendezVous: {
+    include: {
+      medecin: true,
+      patient: true,
+    },
+  },
+});
 
-async function findById(id) {
+const findByRendezVousId = async (rendezVousId) => {
   return prisma.ordonnance.findUnique({
-    where: { id },
+    where: { rendezVousId },
     include: {
       rendezVous: {
         include: {
+          medecin: true,
           patient: true,
-          medecin: true
-        }
-      }
-    }
+        },
+      },
+    },
   });
-}
+};
 
-async function findByRendezVousId(rendezVousId) {
-  return prisma.ordonnance.findUnique({
-    where: { rendezVousId }
-  });
-}
-
-async function update(id, data) {
-  return prisma.ordonnance.update({
-    where: { id },
-    data
-  });
-}
-
-async function remove(id) {
-  return prisma.ordonnance.delete({
-    where: { id }
-  });
-}
-
-module.exports = {
-  create,
-  findById,
+export default {
+  ...baseRepo,
   findByRendezVousId,
-  update,
-  remove
 };

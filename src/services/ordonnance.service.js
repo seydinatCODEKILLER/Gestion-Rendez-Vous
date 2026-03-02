@@ -1,48 +1,89 @@
-const ordonnanceRepo = require("../repositories/ordonnance.repo");
-const rvRepo = require("../repositories/rv.repo");
+import ordonnanceRepo from '../repositories/ordonnance.repository.js';
+import prisma from '../config/prisma.js';
+import HttpError from '../exceptions/http-error.exception.js';
 
-async function createOrdonnance(data) {
+const verifierExistenceRendezVous = async (rendezVousId) => {
+  const rv = await prisma.rendezVous.findUnique({
+    where: { id: rendezVousId },
+  });
 
-  const rendezVous = await rvRepo.findById(data.rendezVousId);
-
-  if (!rendezVous) {
-    throw new Error("Rendez-vous introuvable");
+  if (!rv) {
+    throw new HttpError('Rendez-vous introuvable', 404);
   }
 
-  if (rendezVous.statut !== "TERMINE") {
-    throw new Error("Le rendez-vous doit être terminé");
+  return rv;
+};
+
+const verifierRendezVousTermine = (rv) => {
+  if (rv.statut !== 'TERMINE') {
+    throw new HttpError(
+      'Une ordonnance ne peut être créée que pour un rendez-vous terminé',
+      400
+    );
   }
+};
 
-  const existing = await ordonnanceRepo.findByRendezVousId(data.rendezVousId);
-
+const verifierOrdonnanceUnique = async (rendezVousId) => {
+  const existing = await ordonnanceRepo.findByRendezVousId(rendezVousId);
   if (existing) {
-    throw new Error("Une ordonnance existe déjà pour ce rendez-vous");
+    throw new HttpError(
+      'Une ordonnance existe déjà pour ce rendez-vous',
+      409
+    );
   }
+};
 
-  return ordonnanceRepo.create(data);
-}
+const createOrdonnance = async (data) => {
+  const { rendezVousId, description, dateCreation } = data;
 
-async function getOrdonnance(id) {
+  const rv = await verifierExistenceRendezVous(rendezVousId);
+  verifierRendezVousTermine(rv);
+  await verifierOrdonnanceUnique(rendezVousId);
+
+  return ordonnanceRepo.create({
+    rendezVousId,
+    description,
+    dateCreation: dateCreation ? new Date(dateCreation) : new Date(),
+  });
+};
+
+const getAllOrdonnances = async () => {
+  return ordonnanceRepo.findAll();
+};
+
+const getOrdonnanceById = async (id) => {
   const ordonnance = await ordonnanceRepo.findById(id);
-
   if (!ordonnance) {
-    throw new Error("Ordonnance introuvable");
+    throw new HttpError('Ordonnance introuvable', 404);
   }
-
   return ordonnance;
-}
+};
 
-async function updateOrdonnance(id, data) {
+const getOrdonnanceByRendezVous = async (rendezVousId) => {
+  await verifierExistenceRendezVous(rendezVousId);
+
+  const ordonnance = await ordonnanceRepo.findByRendezVousId(rendezVousId);
+  if (!ordonnance) {
+    throw new HttpError('Aucune ordonnance pour ce rendez-vous', 404);
+  }
+  return ordonnance;
+};
+
+const updateOrdonnance = async (id, data) => {
+  await getOrdonnanceById(id);
   return ordonnanceRepo.update(id, data);
-}
+};
 
-async function deleteOrdonnance(id) {
+const supprimerOrdonnance = async (id) => {
+  await getOrdonnanceById(id);
   return ordonnanceRepo.remove(id);
-}
+};
 
-module.exports = {
+export default {
   createOrdonnance,
-  getOrdonnance,
+  getAllOrdonnances,
+  getOrdonnanceById,
+  getOrdonnanceByRendezVous,
   updateOrdonnance,
-  deleteOrdonnance
+  supprimerOrdonnance,
 };
