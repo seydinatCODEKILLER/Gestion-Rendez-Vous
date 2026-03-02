@@ -1,0 +1,28 @@
+import swaggerJSDoc from "swagger-jsdoc";
+
+const swaggerDefinition = {
+  openapi: "3.0.0",
+  info: {
+    title: "API Gestion des Rendez-vous",
+    version: "1.0.0",
+    description: `
+API REST pour la gestion des patients, médecins, rendez-vous et ordonnances.
+Architecture Express procédurale avec Prisma.
+    `,
+  },
+  servers: [
+    {
+      url: "http://localhost:3000/api",
+      description: "Serveur local",
+    },
+  ],
+};
+
+const options = {
+  swaggerDefinition,
+  apis: ["./src/routes/*.js", "./src/controllers/*.js"],
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+
+export default swaggerSpec;
