@@ -3,6 +3,9 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
 import errorHandler from './middlewares/error-handler.middleware.js';
 import notFound from './middlewares/not-found.middleware.js';
+import ordonnanceRoutes from './routes/ordonnance.routes.js';
+
+
 
 const app = express();
 
@@ -11,6 +14,9 @@ app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //routes ici
+console.log("🟢 Routeur ordonnances chargé");
+app.use("/ordonnances", ordonnanceRoutes);
+
 
 //health check
 app.get('/health', (req, res) => {

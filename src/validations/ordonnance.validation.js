@@ -1,15 +1,26 @@
-const Joi = require("joi");
+import Joi from "joi";
 
-const createOrdonnanceSchema = Joi.object({
-  description: Joi.string().min(5).required(),
-  rendezVousId: Joi.string().required()
+// Validation lors de la création d'une ordonnance
+export const createOrdonnanceSchema = Joi.object({
+  description: Joi.string()
+    .min(5)
+    .required()
+    .messages({
+      "string.empty": "La description est obligatoire",
+      "string.min": "La description doit contenir au moins 5 caractères"
+    }),
+  rendezVousId: Joi.string()
+    .required()
+    .messages({ "string.empty": "Le rendez-vous est obligatoire" })
 });
 
-const updateOrdonnanceSchema = Joi.object({
-  description: Joi.string().min(5).required()
+// Validation lors de la mise à jour
+export const updateOrdonnanceSchema = Joi.object({
+  description: Joi.string()
+    .min(5)
+    .required()
+    .messages({
+      "string.empty": "La description est obligatoire",
+      "string.min": "La description doit contenir au moins 5 caractères"
+    })
 });
-
-module.exports = {
-  createOrdonnanceSchema,
-  updateOrdonnanceSchema
-};
