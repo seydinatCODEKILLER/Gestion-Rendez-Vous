@@ -1,26 +1,26 @@
-import Joi from "joi";
+import { z } from 'zod';
 
-// Validation lors de la création d'une ordonnance
-export const createOrdonnanceSchema = Joi.object({
-  description: Joi.string()
-    .min(5)
-    .required()
-    .messages({
-      "string.empty": "La description est obligatoire",
-      "string.min": "La description doit contenir au moins 5 caractères"
-    }),
-  rendezVousId: Joi.string()
-    .required()
-    .messages({ "string.empty": "Le rendez-vous est obligatoire" })
+export const createOrdonnanceSchema = z.object({
+  rendezVousId: z
+    .string({ required_error: 'rendezVousId est obligatoire' })
+    .min(1, 'rendezVousId invalide'),
+
+  description: z
+    .string({ required_error: 'description est obligatoire' })
+    .min(5, 'description doit contenir au moins 5 caractères'),
+
+  dateCreation: z
+    .string()
+    .refine(
+      (value) => !isNaN(Date.parse(value)),
+      'dateCreation doit être une date valide'
+    )
+    .optional(),
 });
 
-// Validation lors de la mise à jour
-export const updateOrdonnanceSchema = Joi.object({
-  description: Joi.string()
-    .min(5)
-    .required()
-    .messages({
-      "string.empty": "La description est obligatoire",
-      "string.min": "La description doit contenir au moins 5 caractères"
-    })
+export const updateOrdonnanceSchema = z.object({
+  description: z
+    .string()
+    .min(5, 'description doit contenir au moins 5 caractères')
+    .optional(),
 });

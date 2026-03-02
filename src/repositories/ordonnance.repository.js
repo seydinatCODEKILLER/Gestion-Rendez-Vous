@@ -1,43 +1,30 @@
-import prisma from "../config/prisma.js";
+import { createBaseRepository } from './base.repository.js';
+import prisma from '../config/prisma.js';
 
-// Crée une ordonnance
-export async function create(data) {
-  return prisma.ordonnance.create({ data });
-}
+const baseRepo = createBaseRepository('ordonnance', {
+  rendezVous: {
+    include: {
+      medecin: true,
+      patient: true,
+    },
+  },
+});
 
-// Cherche une ordonnance par ID
-export async function findById(id) {
+const findByRendezVousId = async (rendezVousId) => {
   return prisma.ordonnance.findUnique({
-    where: { id },
+    where: { rendezVousId },
     include: {
       rendezVous: {
         include: {
+          medecin: true,
           patient: true,
-          medecin: true
-        }
-      }
-    }
+        },
+      },
+    },
   });
-}
+};
 
-// Cherche une ordonnance par rendez-vous (pour éviter doublon)
-export async function findByRendezVousId(rendezVousId) {
-  return prisma.ordonnance.findUnique({
-    where: { rendezVousId }
-  });
-}
-
-// Met à jour une ordonnance
-export async function update(id, data) {
-  return prisma.ordonnance.update({
-    where: { id },
-    data
-  });
-}
-
-// Supprime une ordonnance
-export async function remove(id) {
-  return prisma.ordonnance.delete({
-    where: { id }
-  });
-}
+export default {
+  ...baseRepo,
+  findByRendezVousId,
+};
