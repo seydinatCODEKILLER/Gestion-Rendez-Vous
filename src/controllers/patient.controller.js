@@ -12,7 +12,7 @@ export const create = async (req, res, next) => {
 
 export const findAll = async (req, res, next) => {
   try {
-    const patients = await patientService.getAllPatients();
+    const patients = await patientService.getAll();
     return success(res, patients);
   } catch (err) {
     next(err);
@@ -21,7 +21,7 @@ export const findAll = async (req, res, next) => {
 
 export const findOne = async (req, res, next) => {
   try {
-    const patient = await patientService.getPatientById(req.params.id);
+    const patient = await patientService.getById(req.params.id);
     return success(res, patient);
   } catch (err) {
     next(err);
@@ -39,7 +39,7 @@ export const update = async (req, res, next) => {
 
 export const remove = async (req, res, next) => {
   try {
-    await patientService.supprimerPatient(req.params.id);
+    await patientService.remove(req.params.id);
     return success(res, null, 200, 'Patient supprimé');
   } catch (err) {
     next(err);

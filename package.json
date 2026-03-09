@@ -1,7 +1,6 @@
 {
   "name": "gestion-rendez-vous",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon ./src/server.js",
@@ -33,5 +32,15 @@
   "devDependencies": {
     "nodemon": "^3.1.11",
     "prisma": "^6.19.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seydinatCODEKILLER/Gestion-Rendez-Vous.git"
+  },
+  "bugs": {
+    "url": "https://github.com/seydinatCODEKILLER/Gestion-Rendez-Vous/issues"
+  },
+  "homepage": "https://github.com/seydinatCODEKILLER/Gestion-Rendez-Vous#readme",
+  "description": ""
   }
-}
+
