@@ -12,7 +12,7 @@ export const create = async (req, res, next) => {
 
 export const findAll = async (req, res, next) => {
   try {
-    const ordonnances = await ordonnanceService.getAllOrdonnances();
+    const ordonnances = await ordonnanceService.getAll();
     return success(res, ordonnances);
   } catch (err) {
     next(err);
@@ -21,7 +21,7 @@ export const findAll = async (req, res, next) => {
 
 export const findOne = async (req, res, next) => {
   try {
-    const ordonnance = await ordonnanceService.getOrdonnanceById(req.params.id);
+    const ordonnance = await ordonnanceService.getById(req.params.id);
     return success(res, ordonnance);
   } catch (err) {
     next(err);
@@ -53,7 +53,7 @@ export const update = async (req, res, next) => {
 
 export const remove = async (req, res, next) => {
   try {
-    await ordonnanceService.supprimerOrdonnance(req.params.id);
+    await ordonnanceService.remove(req.params.id);
     return success(res, null, 200, 'Ordonnance supprimée');
   } catch (err) {
     next(err);

@@ -12,7 +12,7 @@ export const create = async (req, res, next) => {
 
 export const findAll = async (req, res, next) => {
   try {
-    const rvs = await rendezVousService.getAllRendezVous();
+    const rvs = await rendezVousService.getAll();
     return success(res, rvs);
   } catch (err) {
     next(err);
@@ -21,7 +21,7 @@ export const findAll = async (req, res, next) => {
 
 export const findOne = async (req, res, next) => {
   try {
-    const rv = await rendezVousService.getRendezVousById(req.params.id);
+    const rv = await rendezVousService.getById(req.params.id);
     return success(res, rv);
   } catch (err) {
     next(err);
@@ -48,7 +48,7 @@ export const finish = async (req, res, next) => {
 
 export const remove = async (req, res, next) => {
   try {
-    await rendezVousService.supprimerRendezVous(req.params.id);
+    await rendezVousService.remove(req.params.id);
     return success(res, null, 200, "Rendez-vous supprimé");
   } catch (err) {
     next(err);
