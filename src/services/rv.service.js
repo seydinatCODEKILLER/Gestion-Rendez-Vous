@@ -1,16 +1,24 @@
 import rendezVousRepo from '../repositories/rv.repository.js';
 import prisma from '../config/prisma.js';
+import { createBaseService } from './base.service.js';
 import HttpError from '../exceptions/http-error.exception.js';
 
+
 const verifierExistenceMedecin = async (medecinId) => {
-  const medecin = await prisma.medecin.findUnique({ where: { id: medecinId } });
+  const medecin = await prisma.medecin.findUnique({
+    where: { id: medecinId },
+  });
+
   if (!medecin) {
     throw new HttpError('Médecin inexistant', 404);
   }
 };
 
 const verifierExistencePatient = async (patientId) => {
-  const patient = await prisma.patient.findUnique({ where: { id: patientId } });
+  const patient = await prisma.patient.findUnique({
+    where: { id: patientId },
+  });
+
   if (!patient) {
     throw new HttpError('Patient inexistant', 404);
   }
@@ -21,14 +29,15 @@ const verifierDateFuture = (date, heure) => {
     .toISOString()
     .split('T')[0]
     .split('-');
+
   const [hours, minutes] = heure.split(':');
 
   const dateHeure = new Date(
-    parseInt(year),
-    parseInt(month) - 1,
-    parseInt(day),
-    parseInt(hours),
-    parseInt(minutes)
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hours),
+    Number(minutes)
   );
 
   if (dateHeure <= new Date()) {
@@ -37,13 +46,16 @@ const verifierDateFuture = (date, heure) => {
 };
 
 const verifierDisponibilite = async (medecinId, patientId, date, heure) => {
-  const dateNormalisee = new Date(new Date(date).toISOString().split('T')[0]);
-
-  const conflitMedecin = await rendezVousRepo.findConflictForMedecin(
-    medecinId,
-    dateNormalisee,
-    heure
+  const dateNormalisee = new Date(
+    new Date(date).toISOString().split('T')[0]
   );
+
+  const conflitMedecin =
+    await rendezVousRepo.findConflictForMedecin(
+      medecinId,
+      dateNormalisee,
+      heure
+    );
 
   if (conflitMedecin) {
     throw new HttpError(
@@ -52,11 +64,12 @@ const verifierDisponibilite = async (medecinId, patientId, date, heure) => {
     );
   }
 
-  const conflitPatient = await rendezVousRepo.findConflictForPatient(
-    patientId,
-    dateNormalisee,
-    heure
-  );
+  const conflitPatient =
+    await rendezVousRepo.findConflictForPatient(
+      patientId,
+      dateNormalisee,
+      heure
+    );
 
   if (conflitPatient) {
     throw new HttpError(
@@ -66,6 +79,32 @@ const verifierDisponibilite = async (medecinId, patientId, date, heure) => {
   }
 };
 
+const verifierAnnulationPossible = (rv) => {
+  if (rv.statut === 'ANNULE') {
+    throw new HttpError('Rendez-vous déjà annulé', 400);
+  }
+
+  if (rv.statut === 'TERMINE') {
+    throw new HttpError(
+      'Impossible d’annuler un rendez-vous déjà terminé',
+      400
+    );
+  }
+};
+
+const baseService = createBaseService({
+  repository: rendezVousRepo,
+  entityName: 'Rendez-vous',
+  canDelete: (rv) => {
+    if (rv.ordonnance) {
+      throw new HttpError(
+        'Impossible de supprimer un rendez-vous lié à une ordonnance',
+        400
+      );
+    }
+  },
+});
+
 const createRendezVous = async (data) => {
   const { medecinId, patientId, date, heure } = data;
 
@@ -74,9 +113,11 @@ const createRendezVous = async (data) => {
   verifierDateFuture(date, heure);
   await verifierDisponibilite(medecinId, patientId, date, heure);
 
-  const dateNormalisee = new Date(new Date(date).toISOString().split('T')[0]);
+  const dateNormalisee = new Date(
+    new Date(date).toISOString().split('T')[0]
+  );
 
-  return rendezVousRepo.create({
+  return baseService.create({
     medecinId,
     patientId,
     date: dateNormalisee,
@@ -85,56 +126,29 @@ const createRendezVous = async (data) => {
   });
 };
 
-const getAllRendezVous = async () => {
-  return rendezVousRepo.findAll();
-};
-
-const getRendezVousById = async (id) => {
-  const rv = await rendezVousRepo.findById(id);
-  if (!rv) {
-    throw new HttpError('Rendez-vous introuvable', 404);
-  }
-  return rv;
-};
-
 const annulerRendezVous = async (id) => {
-  const rv = await getRendezVousById(id);
-
-  if (rv.statut === 'ANNULE') {
-    throw new HttpError('Rendez-vous déjà annulé', 400);
-  }
-
-  return rendezVousRepo.update(id, { statut: 'ANNULE' });
+  const rv = await baseService.getById(id);
+  verifierAnnulationPossible(rv);
+  return baseService.update(id, { statut: 'ANNULE' });
 };
 
 const terminerRendezVous = async (id) => {
-  const rv = await getRendezVousById(id);
+  const rv = await baseService.getById(id);
 
   if (rv.statut !== 'PLANIFIE') {
-    throw new HttpError('Seul un rendez-vous planifié peut être terminé', 400);
-  }
-
-  return rendezVousRepo.update(id, { statut: 'TERMINE' });
-};
-
-const supprimerRendezVous = async (id) => {
-  const rv = await getRendezVousById(id);
-
-  if (rv.ordonnance) {
     throw new HttpError(
-      'Impossible de supprimer un rendez-vous lié à une ordonnance',
+      'Seul un rendez-vous planifié peut être terminé',
       400
     );
   }
 
-  return rendezVousRepo.remove(id);
+  return baseService.update(id, { statut: 'TERMINE' });
 };
 
+
 export default {
+  ...baseService,
   createRendezVous,
-  getAllRendezVous,
-  getRendezVousById,
   annulerRendezVous,
   terminerRendezVous,
-  supprimerRendezVous,
 };

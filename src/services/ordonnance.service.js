@@ -1,5 +1,6 @@
 import ordonnanceRepo from '../repositories/ordonnance.repository.js';
 import prisma from '../config/prisma.js';
+import { createBaseService } from './base.service.js';
 import HttpError from '../exceptions/http-error.exception.js';
 
 const verifierExistenceRendezVous = async (rendezVousId) => {
@@ -25,6 +26,7 @@ const verifierRendezVousTermine = (rv) => {
 
 const verifierOrdonnanceUnique = async (rendezVousId) => {
   const existing = await ordonnanceRepo.findByRendezVousId(rendezVousId);
+
   if (existing) {
     throw new HttpError(
       'Une ordonnance existe déjà pour ce rendez-vous',
@@ -33,6 +35,11 @@ const verifierOrdonnanceUnique = async (rendezVousId) => {
   }
 };
 
+const baseService = createBaseService({
+  repository: ordonnanceRepo,
+  entityName: 'Ordonnance',
+});
+
 const createOrdonnance = async (data) => {
   const { rendezVousId, description, dateCreation } = data;
 
@@ -40,50 +47,38 @@ const createOrdonnance = async (data) => {
   verifierRendezVousTermine(rv);
   await verifierOrdonnanceUnique(rendezVousId);
 
-  return ordonnanceRepo.create({
+  return baseService.create({
     rendezVousId,
     description,
-    dateCreation: dateCreation ? new Date(dateCreation) : new Date(),
+    dateCreation: dateCreation
+      ? new Date(dateCreation)
+      : new Date(),
   });
-};
-
-const getAllOrdonnances = async () => {
-  return ordonnanceRepo.findAll();
-};
-
-const getOrdonnanceById = async (id) => {
-  const ordonnance = await ordonnanceRepo.findById(id);
-  if (!ordonnance) {
-    throw new HttpError('Ordonnance introuvable', 404);
-  }
-  return ordonnance;
 };
 
 const getOrdonnanceByRendezVous = async (rendezVousId) => {
   await verifierExistenceRendezVous(rendezVousId);
 
-  const ordonnance = await ordonnanceRepo.findByRendezVousId(rendezVousId);
+  const ordonnance =
+    await ordonnanceRepo.findByRendezVousId(rendezVousId);
+
   if (!ordonnance) {
-    throw new HttpError('Aucune ordonnance pour ce rendez-vous', 404);
+    throw new HttpError(
+      'Aucune ordonnance pour ce rendez-vous',
+      404
+    );
   }
+
   return ordonnance;
 };
 
 const updateOrdonnance = async (id, data) => {
-  await getOrdonnanceById(id);
-  return ordonnanceRepo.update(id, data);
-};
-
-const supprimerOrdonnance = async (id) => {
-  await getOrdonnanceById(id);
-  return ordonnanceRepo.remove(id);
+  return baseService.update(id, data);
 };
 
 export default {
+  ...baseService,
   createOrdonnance,
-  getAllOrdonnances,
-  getOrdonnanceById,
   getOrdonnanceByRendezVous,
   updateOrdonnance,
-  supprimerOrdonnance,
 };
