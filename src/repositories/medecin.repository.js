@@ -11,7 +11,24 @@ const findByEmail = async (email) => {
   });
 };
 
+const getLastMatriculeForYear = async (year) => {
+  return prisma.patient.findFirst({
+    where: {
+      matricule: {
+        startsWith: `MED-${year}-`,
+      },
+    },
+    orderBy: {
+      matricule: "desc",
+    },
+    select: {
+      matricule: true,
+    },
+  });
+};
+
 export default {
   ...baseRepo,
   findByEmail,
+  getLastMatriculeForYear,
 };

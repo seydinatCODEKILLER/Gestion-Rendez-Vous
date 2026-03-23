@@ -26,11 +26,13 @@ enum StatutRendezVous {
 
 model Medecin {
   id          String          @id @default(cuid())
+  matricule   String          @unique @db.VarChar(20)
   prenom      String          @db.VarChar(100)
   nom         String          @db.VarChar(100)
   specialite  Specialite
   telephone   String          @db.VarChar(20)
   email       String          @unique @db.VarChar(150)
+  photo       String?         @db.Text
   actif       Boolean         @default(true)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
