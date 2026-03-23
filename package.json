@@ -8,6 +8,7 @@
     "prisma:init": "npx prisma init",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:generate": "npx prisma generate",
+    "prisma:reset": "npx prisma migrate reset --force",
     "prisma:studio": "npx prisma studio"
   },
   "keywords": [],
@@ -42,5 +43,4 @@
   },
   "homepage": "https://github.com/seydinatCODEKILLER/Gestion-Rendez-Vous#readme",
   "description": ""
-  }
-
+}
