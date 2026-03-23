@@ -1,6 +1,21 @@
 import medecinRepo from '../repositories/medecin.repository.js';
 import { createBaseService } from './base.service.js';
 import HttpError from '../exceptions/http-error.exception.js';
+import { deleteMediaByUrl } from './upload.service.js';
+
+const generateMatricule = async () => {
+  const year = new Date().getFullYear();
+  const last = await medecinRepo.getLastMatriculeForYear(year);
+
+  let nextNumber = 1;
+
+  if (last?.matricule) {
+    const parts = last.matricule.split('-');
+    nextNumber = parseInt(parts[2], 10) + 1;
+  }
+
+  return `MED-${year}-${String(nextNumber).padStart(4, '0')}`;
+};
 
 const baseService = createBaseService({
   repository: medecinRepo,
@@ -20,8 +35,12 @@ const createMedecin = async (data) => {
   if (existing) {
     throw new HttpError('Un médecin avec cet email existe déjà', 409);
   }
+    const matricule = await generateMatricule();
 
-  return baseService.create(data);
+  return baseService.create({
+    ...data,
+    matricule
+  });
 };
 
 const updateMedecin = async (id, data) => {
@@ -35,8 +54,24 @@ const updateMedecin = async (id, data) => {
   return baseService.update(id, data);
 };
 
+const removeMedecin = async (id) => {
+  const medecin = await medecinRepo.findById(id);
+
+  if (!medecin) {
+    throw new HttpError('Medecin introuvable', 404);
+  }
+
+  if (medecin.photo) {
+    await deleteMediaByUrl(medecin.photo);
+  }
+
+  return baseService.remove(id);
+};
+
+
 export default {
   ...baseService,
   createMedecin,
   updateMedecin,
+  remove: removeMedecin,
 };

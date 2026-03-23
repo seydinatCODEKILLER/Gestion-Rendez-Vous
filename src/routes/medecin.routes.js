@@ -5,6 +5,8 @@ import {
   createMedecinSchema,
   updateMedecinSchema,
 } from "../validations/medecin.validation.js";
+import upload from "../middlewares/upload.middleware.js";
+import { cleanBodyMiddleware } from "../middlewares/cleanBody.middleware.js";
 
 const router = express.Router();
 
@@ -15,7 +17,6 @@ const router = express.Router();
  *   description: Gestion des médecins
  */
 
-
 /**
  * @swagger
  * /medecins:
@@ -25,7 +26,7 @@ const router = express.Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -49,12 +50,15 @@ const router = express.Router();
  *                 example: "CARDIOLOGUE"
  *               telephone:
  *                 type: string
- *                 description: Doit contenir au minimum 9 chiffres
  *                 example: "771234567"
  *               email:
  *                 type: string
  *                 format: email
  *                 example: "fatou.diop@email.com"
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *                 description: Photo du médecin (jpeg/png, max 3 Mo)
  *     responses:
  *       201:
  *         description: Médecin créé avec succès
@@ -63,7 +67,12 @@ const router = express.Router();
  *       409:
  *         description: Email déjà utilisé
  */
-router.post("/", validate(createMedecinSchema), controller.create);
+router.post(
+  "/",
+  upload.single("photo"),
+  validate(createMedecinSchema),
+  controller.create,
+);
 
 /**
  * @swagger
@@ -97,12 +106,11 @@ router.get("/", controller.findAll);
  */
 router.get("/:id", controller.findOne);
 
-
 /**
  * @swagger
  * /medecins/{id}:
  *   put:
- *     summary: Modifier un médecin
+ *     summary: Mettre à jour un médecin (partiel)
  *     tags: [Medecins]
  *     parameters:
  *       - in: path
@@ -110,34 +118,32 @@ router.get("/:id", controller.findOne);
  *         required: true
  *         schema:
  *           type: string
- *         description: ID du médecin
  *     requestBody:
- *       required: true
+ *       required: false
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               prenom:
  *                 type: string
- *                 minLength: 2
- *                 example: "Aminata"
  *               nom:
  *                 type: string
- *                 minLength: 2
- *                 example: "Ndiaye"
  *               specialite:
  *                 type: string
  *                 enum: [GENERALISTE, CARDIOLOGUE, DENTISTE, PEDIATRE, DERMATOLOGUE]
  *               telephone:
  *                 type: string
- *                 example: "781234567"
  *               email:
  *                 type: string
  *                 format: email
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *                 description: Nouvelle photo du médecin (jpeg/png, max 3 Mo)
  *     responses:
  *       200:
- *         description: Médecin modifié avec succès
+ *         description: Médecin mis à jour
  *       400:
  *         description: Données invalides
  *       404:
@@ -145,8 +151,13 @@ router.get("/:id", controller.findOne);
  *       409:
  *         description: Email déjà utilisé
  */
-router.put("/:id", validate(updateMedecinSchema), controller.update);
-
+router.put(
+  "/:id",
+  upload.single("photo"),
+  cleanBodyMiddleware,
+  validate(updateMedecinSchema),
+  controller.update,
+);
 
 /**
  * @swagger
