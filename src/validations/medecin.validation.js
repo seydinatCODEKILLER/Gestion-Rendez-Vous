@@ -18,12 +18,16 @@ export const createMedecinSchema = z.object({
     .string({ required_error: "Le téléphone est requis" })
     .regex(
       /^221(77|78|76|70|75)\d{7}$/,
-      "Le téléphone doit commencer par 221 suivi de 77, 78, 76, 70 ou 75 et contenir 7 chiffres"
+      "Le téléphone doit commencer par 221 suivi de 77, 78, 76, 70 ou 75 et contenir 7 chiffres",
     ),
 
   email: z
     .string({ required_error: "L'email est requis" })
     .email("Email invalide"),
+
+  serviceId: z
+    .string({ required_error: "Le service est obligatoire" })
+    .cuid("ID de service invalide"),
 });
 
 export const updateMedecinSchema = createMedecinSchema.partial();

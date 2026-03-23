@@ -7,6 +7,8 @@ import ordonnanceRoutes from './routes/ordonnance.routes.js';
 import  patientRoutes from './routes/patient.routes.js';
 import rvRoutes from './routes/rv.routes.js';
 import medecinRoutes from './routes/medecin.routes.js';
+import serviceRoutes from './routes/service.routes.js';
+
 
 const app = express();
 
@@ -19,6 +21,7 @@ app.use("/api/ordonnances", ordonnanceRoutes);
 app.use('/api/rendezvous', rvRoutes);
 app.use('/api/medecins', medecinRoutes);
 app.use('/api/patients', patientRoutes);
+app.use('/api/services', serviceRoutes)
 
 //health check
 app.get('/health', (req, res) => {
