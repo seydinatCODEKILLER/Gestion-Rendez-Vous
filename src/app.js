@@ -8,8 +8,6 @@ import  patientRoutes from './routes/patient.routes.js';
 import rvRoutes from './routes/rv.routes.js';
 import medecinRoutes from './routes/medecin.routes.js';
 
-
-
 const app = express();
 
 app.use(express.json());
@@ -24,7 +22,7 @@ app.use('/api/patients', patientRoutes);
 
 //health check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({ status: 'oks' });
 });
 
 app.use(notFound);
