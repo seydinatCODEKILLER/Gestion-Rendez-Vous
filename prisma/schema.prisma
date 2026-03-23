@@ -34,6 +34,8 @@ model Medecin {
   email       String          @unique @db.VarChar(150)
   photo       String?         @db.Text
   actif       Boolean         @default(true)
+  serviceId   String
+  service     Service         @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   rendezVous  RendezVous[]
@@ -86,4 +88,17 @@ model Ordonnance {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   @@map("ordonnances")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  code        String   @db.VarChar(10)
+  libelle     String   @db.VarChar(100)
+  sousService String?  @db.VarChar(100)
+  medecins    Medecin[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([code, sousService])
+  @@map("services")
 }
