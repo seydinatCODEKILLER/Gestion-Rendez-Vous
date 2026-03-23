@@ -1,7 +1,12 @@
-import express from 'express';
-import * as controller from '../controllers/patient.controller.js';
-import validate from '../middlewares/validate.middleware.js';
-import { createPatientSchema, updatePatientSchema } from '../validations/patient.validation.js';
+import express from "express";
+import * as controller from "../controllers/patient.controller.js";
+import validate from "../middlewares/validate.middleware.js";
+import {
+  createPatientSchema,
+  updatePatientSchema,
+} from "../validations/patient.validation.js";
+import upload from "../middlewares/upload.middleware.js";
+import { cleanBodyMiddleware } from "../middlewares/cleanBody.middleware.js";
 
 const router = express.Router();
 
@@ -21,7 +26,7 @@ const router = express.Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -47,15 +52,25 @@ const router = express.Router();
  *               adresse:
  *                 type: string
  *                 example: "Dakar, Plateau"
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *                 description: >
+ *                   Photo du patient (jpeg ou png, taille maximale 3 Mo)
  *     responses:
  *       201:
  *         description: Patient créé avec succès
  *       400:
- *         description: Données invalides
+ *         description: Données invalides ou fichier incorrect
  *       409:
  *         description: Téléphone déjà utilisé
  */
-router.post('/', validate(createPatientSchema), controller.create);
+router.post(
+  "/",
+  upload.single("photo"),
+  validate(createPatientSchema),
+  controller.create,
+);
 
 /**
  * @swagger
@@ -67,7 +82,7 @@ router.post('/', validate(createPatientSchema), controller.create);
  *       200:
  *         description: Liste des patients
  */
-router.get('/', controller.findAll);
+router.get("/", controller.findAll);
 
 /**
  * @swagger
@@ -87,7 +102,7 @@ router.get('/', controller.findAll);
  *       404:
  *         description: Patient introuvable
  */
-router.get('/:id', controller.findOne);
+router.get("/:id", controller.findOne);
 
 /**
  * @swagger
@@ -102,8 +117,9 @@ router.get('/:id', controller.findOne);
  *         schema:
  *           type: string
  *     requestBody:
+ *       required: false
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -118,15 +134,27 @@ router.get('/:id', controller.findOne);
  *                 type: string
  *               adresse:
  *                 type: string
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *                 description: Nouvelle photo du patient (jpeg/png, max 3 Mo)
  *     responses:
  *       200:
  *         description: Patient mis à jour
+ *       400:
+ *         description: Données invalides ou fichier incorrect
  *       404:
  *         description: Patient introuvable
  *       409:
  *         description: Téléphone déjà utilisé
  */
-router.patch('/:id', validate(updatePatientSchema), controller.update);
+router.patch(
+  "/:id",
+  upload.single("photo"),
+  cleanBodyMiddleware,
+  validate(updatePatientSchema),
+  controller.update,
+);
 
 /**
  * @swagger
@@ -148,6 +176,6 @@ router.patch('/:id', validate(updatePatientSchema), controller.update);
  *       404:
  *         description: Patient introuvable
  */
-router.delete('/:id', controller.remove);
+router.delete("/:id", controller.remove);
 
 export default router;

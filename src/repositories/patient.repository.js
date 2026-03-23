@@ -1,7 +1,7 @@
-import { createBaseRepository } from './base.repository.js';
-import prisma from '../config/prisma.js';
+import { createBaseRepository } from "./base.repository.js";
+import prisma from "../config/prisma.js";
 
-const baseRepo = createBaseRepository('patient', {
+const baseRepo = createBaseRepository("patient", {
   rendezVous: true,
 });
 
@@ -18,8 +18,25 @@ const hasRendezVous = async (id) => {
   return count > 0;
 };
 
+const getLastMatriculeForYear = async (year) => {
+  return prisma.patient.findFirst({
+    where: {
+      matricule: {
+        startsWith: `PAT-${year}-`,
+      },
+    },
+    orderBy: {
+      matricule: "desc",
+    },
+    select: {
+      matricule: true,
+    },
+  });
+};
+
 export default {
   ...baseRepo,
   findByTelephone,
   hasRendezVous,
+  getLastMatriculeForYear
 };
