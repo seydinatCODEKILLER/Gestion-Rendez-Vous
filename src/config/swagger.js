@@ -16,7 +16,7 @@ Architecture Express procédurale avec Prisma.
       description: "Serveur local",
     },
     {
-      url: "https://gestion-rendez-vous-h5vp.onrender.com/api",
+      url: "https://gestion-rendez-vous-mvkz.onrender.com/api",
       description: "Serveur en production",
     },
   ],
