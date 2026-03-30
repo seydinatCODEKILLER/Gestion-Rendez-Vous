@@ -73,6 +73,8 @@ const removeMedecin = async (id) => {
 
   if (medecin.photo) {
     await deleteMediaByUrl(medecin.photo);
+    console.log("suppression réussie");
+    
   }
 
   return baseService.remove(id);

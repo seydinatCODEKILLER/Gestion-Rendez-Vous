@@ -44,13 +44,45 @@ export const rollbackUpload = async (prefix) => {
   uploadResults.delete(prefix);
 };
 
+export const extractPublicId = (url) => {
+  if (!url) return null;
+
+  const uploadIndex = url.indexOf("/upload/");
+  if (uploadIndex === -1) return null;
+
+  let publicIdWithVersion = url.substring(uploadIndex + 8);
+
+  // enlever le versioning (v123456)
+  publicIdWithVersion = publicIdWithVersion.replace(/^v\d+\//, "");
+
+  // enlever l'extension (.png, .jpg...)
+  const publicId = publicIdWithVersion.replace(/\.[^/.]+$/, "");
+
+  return publicId;
+}; 
+
 export const deleteMediaByUrl = async (url) => {
   if (!url) return;
 
-  const publicId = url.match(/hackathon\/media\/[^\/]+(?=\.|$)/)?.[0];
-  if (!publicId) return;
+  const publicId = extractPublicId(url);
+  if (!publicId) {
+    console.log("❌ publicId introuvable");
+    return;
+  }
+
+  console.log("✅ Suppression Cloudinary:", publicId);
 
   await cloudinary.uploader.destroy(publicId, {
     resource_type: "image",
   });
 };
+// export const deleteMediaByUrl = async (url) => {
+//   if (!url) return;
+
+//   const publicId = url.match(/hackathon\/media\/[^\/]+(?=\.|$)/)?.[0];
+//   if (!publicId) return;
+
+//   await cloudinary.uploader.destroy(publicId, {
+//     resource_type: "image",
+//   });
+// };
