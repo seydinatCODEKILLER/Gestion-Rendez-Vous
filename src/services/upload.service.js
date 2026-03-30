@@ -76,13 +76,3 @@ export const deleteMediaByUrl = async (url) => {
     resource_type: "image",
   });
 };
-// export const deleteMediaByUrl = async (url) => {
-//   if (!url) return;
-
-//   const publicId = url.match(/hackathon\/media\/[^\/]+(?=\.|$)/)?.[0];
-//   if (!publicId) return;
-
-//   await cloudinary.uploader.destroy(publicId, {
-//     resource_type: "image",
-//   });
-// };
