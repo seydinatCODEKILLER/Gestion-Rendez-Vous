@@ -14,7 +14,7 @@ import { corsMiddleware, corsPreFlight } from './config/cors.js';
 const app = express();
 
 app.use(corsMiddleware);
-app.options('*', corsPreFlight);
+app.options('/{*path}', corsPreFlight);
 
 app.use(express.json());
 
