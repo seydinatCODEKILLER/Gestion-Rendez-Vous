@@ -8,9 +8,13 @@ import  patientRoutes from './routes/patient.routes.js';
 import rvRoutes from './routes/rv.routes.js';
 import medecinRoutes from './routes/medecin.routes.js';
 import serviceRoutes from './routes/service.routes.js';
+import { corsMiddleware, corsPreFlight } from './config/cors.js';
 
 
 const app = express();
+
+app.use(corsMiddleware);
+app.options('*', corsPreFlight);
 
 app.use(express.json());
 
