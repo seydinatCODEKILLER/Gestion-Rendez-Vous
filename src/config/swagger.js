@@ -20,6 +20,16 @@ Architecture Express procédurale avec Prisma.
       description: "Serveur en production",
     },
   ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+    },
+  },
+  security: [{ bearerAuth: [] }],
 };
 
 const options = {

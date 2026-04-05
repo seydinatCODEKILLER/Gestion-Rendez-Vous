@@ -46,6 +46,8 @@ const router = express.Router();
  *         description: Ordonnance créée avec succès
  *       400:
  *         description: Rendez-vous non terminé ou données invalides
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Rendez-vous introuvable
  *       409:
@@ -62,6 +64,8 @@ router.post('/', validate(createOrdonnanceSchema), controller.create);
  *     responses:
  *       200:
  *         description: Liste des ordonnances
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  */
 router.get('/', controller.findAll);
 
@@ -80,6 +84,8 @@ router.get('/', controller.findAll);
  *     responses:
  *       200:
  *         description: Ordonnance trouvée
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Ordonnance introuvable
  */
@@ -100,6 +106,8 @@ router.get('/:id', controller.findOne);
  *     responses:
  *       200:
  *         description: Ordonnance trouvée
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Rendez-vous ou ordonnance introuvable
  */
@@ -128,6 +136,8 @@ router.get('/:rendezVousId/rendezvous', controller.findByRendezVous);
  *     responses:
  *       200:
  *         description: Ordonnance mise à jour
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Ordonnance introuvable
  */
@@ -148,6 +158,8 @@ router.patch('/:id', validate(updateOrdonnanceSchema), controller.update);
  *     responses:
  *       200:
  *         description: Ordonnance supprimée
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Ordonnance introuvable
  */

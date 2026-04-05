@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -24,21 +22,46 @@ enum StatutRendezVous {
   ABSENT
 }
 
+model User {
+  id            String         @id @default(cuid())
+  prenom        String         @db.VarChar(100)
+  nom           String         @db.VarChar(100)
+  email         String         @unique @db.VarChar(150)
+  password      String         @db.VarChar(255)
+  refreshTokens RefreshToken[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique @db.VarChar(500)
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
 model Medecin {
-  id          String          @id @default(cuid())
-  matricule   String          @unique @db.VarChar(20)
-  prenom      String          @db.VarChar(100)
-  nom         String          @db.VarChar(100)
-  specialite  Specialite
-  telephone   String          @db.VarChar(20)
-  email       String          @unique @db.VarChar(150)
-  photo       String?         @db.Text
-  actif       Boolean         @default(true)
-  serviceId   String
-  service     Service         @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  rendezVous  RendezVous[]
+  id         String       @id @default(cuid())
+  matricule  String       @unique @db.VarChar(20)
+  prenom     String       @db.VarChar(100)
+  nom        String       @db.VarChar(100)
+  specialite Specialite
+  telephone  String       @db.VarChar(20)
+  email      String       @unique @db.VarChar(150)
+  photo      String?      @db.Text
+  actif      Boolean      @default(true)
+  serviceId  String
+  service    Service      @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  rendezVous RendezVous[]
+
   @@index([nom, prenom])
   @@map("medecins")
 }
@@ -52,26 +75,27 @@ model Patient {
   telephone     String       @db.VarChar(20)
   adresse       String       @db.VarChar(255)
   photo         String?      @db.Text
-  actif         Boolean      @default(true) 
+  actif         Boolean      @default(true)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   rendezVous    RendezVous[]
+
   @@index([nom, prenom])
   @@map("patients")
 }
 
 model RendezVous {
-  id          String             @id @default(cuid())
-  date        DateTime           @map("date")
-  heure       String             @map("heure")
-  statut      StatutRendezVous   @default(PLANIFIE)
-  medecinId   String             @map("medecin_id")
-  patientId   String             @map("patient_id")
-  medecin     Medecin  @relation(fields: [medecinId], references: [id], onDelete: Restrict)
-  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Restrict)
-  ordonnance  Ordonnance?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         String           @id @default(cuid())
+  date       DateTime         @map("date")
+  heure      String           @map("heure")
+  statut     StatutRendezVous @default(PLANIFIE)
+  medecinId  String           @map("medecin_id")
+  patientId  String           @map("patient_id")
+  medecin    Medecin          @relation(fields: [medecinId], references: [id], onDelete: Restrict)
+  patient    Patient          @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  ordonnance Ordonnance?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
   @@unique([medecinId, date, heure, statut])
   @@index([medecinId, date])
@@ -80,24 +104,25 @@ model RendezVous {
 }
 
 model Ordonnance {
-  id            String       @id @default(cuid())
-  dateCreation  DateTime     @default(now()) @map("date_creation")
-  description   String       @db.Text
-  rendezVousId  String       @unique @map("rendez_vous_id")
-  rendezVous    RendezVous   @relation(fields: [rendezVousId], references: [id], onDelete: Restrict)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id           String     @id @default(cuid())
+  dateCreation DateTime   @default(now()) @map("date_creation")
+  description  String     @db.Text
+  rendezVousId String     @unique @map("rendez_vous_id")
+  rendezVous   RendezVous @relation(fields: [rendezVousId], references: [id], onDelete: Restrict)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
   @@map("ordonnances")
 }
 
 model Service {
-  id          String   @id @default(cuid())
-  code        String   @db.VarChar(10)
-  libelle     String   @db.VarChar(100)
-  sousService String?  @db.VarChar(100)
+  id          String    @id @default(cuid())
+  code        String    @db.VarChar(10)
+  libelle     String    @db.VarChar(100)
+  sousService String?   @db.VarChar(100)
   medecins    Medecin[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@unique([code, sousService])
   @@map("services")

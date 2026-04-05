@@ -83,6 +83,8 @@ const router = express.Router();
  *                   $ref: '#/components/schemas/Medecin'
  *       400:
  *         description: Données invalides
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Service non trouvé
  *       409:
@@ -136,6 +138,8 @@ router.post(
  *                     $ref: '#/components/schemas/Medecin'
  *       400:
  *         description: Paramètres invalides
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  */
 router.get("/", controller.findAll);
 
@@ -166,6 +170,8 @@ router.get("/", controller.findAll);
  *                   example: true
  *                 data:
  *                   $ref: '#/components/schemas/Medecin'
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Médecin introuvable
  */
@@ -242,6 +248,8 @@ router.get("/:id", controller.findOne);
  *                   $ref: '#/components/schemas/Medecin'
  *       400:
  *         description: Données invalides
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Médecin ou service introuvable
  *       409:
@@ -288,6 +296,8 @@ router.put(
  *                   nullable: true
  *       400:
  *         description: Médecin lié à des rendez-vous
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Médecin introuvable
  */
