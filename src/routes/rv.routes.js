@@ -48,6 +48,8 @@ const router = express.Router();
  *         description: Rendez-vous créé avec succès
  *       400:
  *         description: Données invalides
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Médecin ou patient introuvable
  *       409:
@@ -64,6 +66,8 @@ router.post("/", validate(createRendezVousSchema), controller.create);
  *     responses:
  *       200:
  *         description: Liste des rendez-vous
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  */
 router.get("/", controller.findAll);
 
@@ -82,6 +86,8 @@ router.get("/", controller.findAll);
  *     responses:
  *       200:
  *         description: Rendez-vous trouvé
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Rendez-vous introuvable
  */
@@ -104,6 +110,8 @@ router.get("/:id", controller.findOne);
  *         description: Rendez-vous supprimé
  *       400:
  *         description: Rendez-vous lié à une ordonnance
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Rendez-vous introuvable
  */
@@ -126,6 +134,8 @@ router.delete("/:id", controller.remove);
  *         description: Rendez-vous annulé
  *       400:
  *         description: État invalide
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Rendez-vous introuvable
  */
@@ -148,6 +158,8 @@ router.patch("/:id/annuler", controller.cancel);
  *         description: Rendez-vous terminé
  *       400:
  *         description: État invalide
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Rendez-vous introuvable
  */
