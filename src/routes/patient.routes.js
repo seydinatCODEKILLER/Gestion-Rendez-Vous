@@ -62,6 +62,8 @@ const router = express.Router();
  *         description: Patient créé avec succès
  *       400:
  *         description: Données invalides ou fichier incorrect
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       409:
  *         description: Téléphone déjà utilisé
  */
@@ -81,6 +83,8 @@ router.post(
  *     responses:
  *       200:
  *         description: Liste des patients
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  */
 router.get("/", controller.findAll);
 
@@ -99,6 +103,8 @@ router.get("/", controller.findAll);
  *     responses:
  *       200:
  *         description: Patient trouvé
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Patient introuvable
  */
@@ -143,6 +149,8 @@ router.get("/:id", controller.findOne);
  *         description: Patient mis à jour
  *       400:
  *         description: Données invalides ou fichier incorrect
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Patient introuvable
  *       409:
@@ -173,6 +181,8 @@ router.patch(
  *         description: Patient supprimé
  *       400:
  *         description: Patient lié à des rendez-vous
+ *       401:
+ *         description: Non authentifié (Token manquant ou invalide)
  *       404:
  *         description: Patient introuvable
  */
